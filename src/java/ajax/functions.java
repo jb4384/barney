@@ -5,23 +5,18 @@
  */
 package ajax;
 
-import database.FileParser;
-import database.SQLConnector;
+import database.intro11e;
 import database.intro11equiz;
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.TreeMap;
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
@@ -71,46 +66,30 @@ public class functions extends HttpServlet {
 
     }
     
-    private String buildDatabase(String chapterNo, String questionNo, String data){
-        SQLConnector sql = new SQLConnector();
-        System.out.println("entered build Database");
-        //sql.createDatabase();
-        ArrayList<FileParser> items = new ArrayList<>();
-        if (!(new intro11equiz().createTable())) {
-            System.out.println("Table Created");
-            String path = "C:\\selftest\\selftest11e";
-            try {
-                List<File> files = Files.walk(Paths.get(path))
-                        .filter(Files::isRegularFile)
-                        .map(Path::toFile)
-                        .collect(Collectors.toList());
-                files.forEach((File file) -> {
-                    new FileParser(file.getAbsolutePath()).start();
-                });
-            } catch (IOException ex) {
-            }
-            items.forEach((item) -> {
-                item.start();
-            });
-            int total = items.size();
-            int terminated = 0;
-            do {
-                try {
-                    terminated = items.stream().filter((FileParser item) -> item.getState().toString().equals("TERMINATED")).map((_item) -> 1).reduce(terminated, Integer::sum);
-                    if (terminated < total) {
-                        Thread.sleep(1000);
-                    }
-                } catch (InterruptedException ex) {
-                }
-            } while (terminated < total);
-            return "Table creation Complete";
-        } else {
-            return "Table Creation Failed!";
-        }        
+    private void saveAnswer(String chapterNo, String questionNo, String data){
+        intro11e ans = new intro11e(chapterNo, questionNo, data);
+        intro11equiz qst = new intro11equiz(chapterNo, questionNo);
+        String Correct = (qst.getAnswerKey().equalsIgnoreCase(data)) ? "1" : "0";
+        System.out.println(qst.getAnswerKey());
+        System.out.println(data);
+        System.out.println(Correct);
+        ans.setIsCorrect(Correct);
+        ans.insert();
+        JsonObjectBuilder item = Json.createObjectBuilder();
+        item.add("result", Correct);
+        item.add("key", qst.getAnswerKey().toUpperCase());
+        item.add("hint", qst.getHint());
+        JsonObject result = item.build();
+        StringWriter sw = new StringWriter();
+        
+        JsonWriter writer = Json.createWriter(sw);
+        writer.writeObject(result);
+        
+        out.println(sw.toString());
     }
     
     private void getQuestionsList(String chapterNo, String questionNo, String data){
-        HashMap<String, String> list = new database.SQLConnector().getQuestionsList();
+        TreeMap<Integer, String> list = new database.SQLConnector().getQuestionsList();
         JsonObjectBuilder item = Json.createObjectBuilder();
         JsonArrayBuilder items = Json.createArrayBuilder();
         list.forEach((k, v) -> {

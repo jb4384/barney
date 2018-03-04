@@ -11,6 +11,7 @@
         <link rel="stylesheet" href="css/modal.css">
         <!--<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css">-->
         <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+        <script defer src="https://use.fontawesome.com/releases/v5.0.8/js/all.js"></script>
         <script>hljs.initHighlightingOnLoad();</script>
         <style type="text/css">
             body {
@@ -19,8 +20,12 @@
                 color: black
             }
 
-            pre { margin: 0px;
-                  width: 100%;}
+            pre { 
+                margin: 0px;
+                width: 100%;
+                word-wrap: break-word;
+                overflow-x: hidden;
+            }
 
             #question {
                 font-family: "Courier New", Courier, Verdana, Helvetica, sans-serif;
@@ -73,6 +78,14 @@
                 color:black;
             }
 
+            .correct {
+                color: green;
+            }
+
+            .incorrect {
+                color: red;
+            }
+
             #h3style {
                 color: white;
                 font-family: Helvetica, sans-serif;
@@ -89,46 +102,126 @@
                     var chapterNo = $('#chapterNo').val();
                     var questionNo = $('#questionNo').val();
                     var info = '';
-                    $.post('ajax/functions?method=getQuestionsList&chapterNo=' + chapterNo + '&questionNo=' + questionNo + '&data=' + info, function (data) {
-
-                    }).fail(function (error) {
-                        alert(error.responseJSON);
+                    $('input[name="QA12"]:checked').each(function () {
+                        info += this.value;
                     });
+                    if (info == "") {
+                        $('#modalContent').html("").append("<div style='color:red;'>You must make a selection</div>");
+                        $("#myModal").css("display", "block");
+                    } else {
+                        $.post('ajax/functions?method=saveAnswer&chapterNo=' + chapterNo + '&questionNo=' + questionNo + '&data=' + info, function (data) {
+                            $("#againButton").toggle();
+                            $("#submitButton").toggle();
+                            obj = $.parseJSON(data);
+                            var correct = "correct";
+                            var check = "check";
+                            console.log(obj.result);
+                            if (obj.result == 0) {
+                                correct = "incorrect";
+                                check = "times";
+                            }
+                            var item = $('<span />').addClass(correct)
+                                    .text('Your answer ' + info + ' is ' + correct)
+                                    .append('<i class="fas fa-' + check + ' fa-2x" aria-hidden="true"></i>');
+                            $('#modalContent').html("").append(item).append('<br>');
+                            var item = $('<div />');
+                            item.attr({id: 'a1', style: 'color: green'})
+                                    .text('Click here to show the correct answer and an explanation')
+                                    .on('click', function () {
+                                        $(this).text("The correct answer is " + obj.key);
+                                        if (obj.hint != "") {
+                                            $(this).append("<div style = 'color: purple; font-family: Times New Roman;'> Explanation:  " + obj.hint);
+                                        }
+                                    });
+                            $('#modalContent').append(item);
+                            $("#myModal").css("display", "block");
+                        }).fail(function (error) {
+                            alert(error.responseJSON);
+                        });
+                    }
                 });
                 $("#choiceButton").click(function () {
                     var chapterNo = $('#chapterNo').val();
                     var questionNo = $('#questionNo').val();
                     var info = '';
                     $.post('ajax/functions?method=getQuestionsList&chapterNo=' + chapterNo + '&questionNo=' + questionNo + '&data=' + info, function (data) {
-                        console.log(data);
-                        questionList = $.parseJSON(data);
-                        sortResults('chapter',true);
-                        var l = $('<label />')
-                        l.attr('for', 'choiceSelect')
+                        obj = $.parseJSON(data);
+                        questionList = obj.result;
+                        var l1 = $('<label />')
+                        l1.attr('for', 'chapterSelect')
                                 .text('Chapter: ');
-                        var s = $('<select />');
-                        s.attr('id', 'choiceSelect');
-                        $.each(questionList.result, function (i, ele) {
+                        var s1 = $('<select />');
+                        s1.attr('name', 'chapterSelect');
+                        $.each(questionList, function (i, ele) {
                             item = ele.chapter;
-                            $('<option />', {value: item, text: item}).appendTo(s);
+                            $('<option />', {value: item, text: item}).appendTo(s1);
                         });
-                        $('#modalContent').html('').append(l).append(s);
+                        $('#modalContent').html('').append(l1).append(s1);
+                        s1.on("change", function () {
+                            chapterSelectChange();
+                        });
+                        var l2 = $('<label />')
+                        l2.attr('for', 'choiceSelect')
+                                .attr('style', 'margin-left:25px;')
+                                .text('Question: ');
+                        var s2 = $('<select />');
+                        s2.attr('name', 'questionSelect');
+                        $('#modalContent').append(l2).append(s2);
+                        buildQuestionSelect(1);
+                        var input = $('<input>');
+                        input.attr({
+                            type: 'button',
+                            class: 'buttonSet',
+                            id: 'selectedButton',
+                            value: 'Get Question',
+                        }).on('click', function () {
+                            getSelectedQuestion();
+                        });
+                        $('#modalContent').append('<br>').append(input);
                         $("#myModal").css("display", "block");
                     }).fail(function (error) {
                         alert(error.responseJSON);
                     });
                 });
-            });
-            
-            function sortResults(prop, asc) {
-                questionList = questionList.sort(function (a, b) {
-                    if (asc) {
-                        return (a[prop] > b[prop]) ? 1 : ((a[prop] < b[prop]) ? -1 : 0);
-                    } else {
-                        return (b[prop] > a[prop]) ? 1 : ((b[prop] < a[prop]) ? -1 : 0);
-                    }
+                $("#againButton").click(function () {
+                    var chapterNo = $('#chapterNo').val();
+                    var questionNo = $('#questionNo').val();
+                    getNextQuestion(chapterNo, questionNo);
+                });
+                $("#randomButton").click(function () {
+                    getNextQuestion();
                 });
             }
+            );
+            function buildQuestionSelect(chapter) {
+                item = questionList[chapter - 1];
+                s = $('[name="questionSelect"]');
+                s.empty();
+                var array = item.question.split(',');
+                $.each(array, function (index, item) {
+                    $('<option />', {value: item, text: item}).appendTo(s);
+                });
+            }
+
+            function chapterSelectChange() {
+                chapter = $('[name="chapterSelect"]').val();
+                buildQuestionSelect(chapter);
+            }
+
+            function getSelectedQuestion() {
+                chapter = $('[name="chapterSelect"]').val();
+                question = $('[name="questionSelect"]').val();
+                getNextQuestion(chapter, question);
+            }
+
+            function getNextQuestion(chapter = "", question = "") {
+                url = "OneQuestion.jsp";
+                if (chapter != "" && question != "") {
+                    url += "?chapterNo=" + chapter + "&questionNo=" + question;
+                }
+                window.location.replace(url);
+            }
+
         </script>
     </head>
 
@@ -166,8 +259,9 @@
 
                     <div style="text-align: left; margin-right: 1em; ">
                         <input type="button" class="buttonSet" id="submitButton" value="Check My Answer">
-                        <!-- Trigger/Open The Modal -->
+                        <input type="button" class="buttonSet" id="againButton" value="Try Again" style="display:none;">
                         <input type="button" class="buttonSet" id="choiceButton" value="Select Question">
+                        <input type="button" class="buttonSet" id="randomButton" value="Random Question">
 
                         <!-- The Modal -->
                         <div id="myModal" class="modal">

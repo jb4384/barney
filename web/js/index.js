@@ -57,7 +57,7 @@ function getRandom() {
             });
         }, 50);
     } else {
-        //window.location.replace("OneQuestion.jsp");
+        window.location.replace("OneQuestion.jsp");
     }
 }
 

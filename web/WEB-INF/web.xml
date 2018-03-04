@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app version="3.1" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd">
-    <welcome-file-list>
-        <welcome-file>OneQuestion.jsp</welcome-file>
-    </welcome-file-list>
+    <listener>
+        <listener-class>
+            database.AppServletContextListener
+        </listener-class>
+    </listener>
     <servlet>
-        <servlet-name>results</servlet-name>
+        <servlet-name>functions</servlet-name>
         <servlet-class>ajax.functions</servlet-class>
     </servlet>
     <servlet-mapping>
-        <servlet-name>results</servlet-name>
-        <url-pattern>/ajax/results</url-pattern>
+        <servlet-name>functions</servlet-name>
+        <url-pattern>/ajax/functions</url-pattern>
     </servlet-mapping>
 </web-app>

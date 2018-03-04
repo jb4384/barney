@@ -16,14 +16,14 @@ import java.util.*;
 public class SQLConnector {
 
     private Connection con;
-    /*private final String dbName = "csci5520";
+    private final String dbName = "csci5520";
     private final String userName = "jabarney7";
     private final String password = "password";
-    private final String hostname = "127.0.0.1";*/
-    private final String dbName = "barney";
+    private final String hostname = "127.0.0.1";
+    /*private final String dbName = "barney";
     private final String userName = "barney";
     private final String password = "tiger";
-    private final String hostname = "35.185.94.191";
+    private final String hostname = "35.185.94.191";*/
     private final String port = "3306";
     private String error;
 
@@ -136,7 +136,7 @@ public class SQLConnector {
         return false;
     }
 
-    public HashMap<String, String> loadItem(String table, HashMap<String, String> criteria) {
+    public Map<String, String> loadItem(String table, HashMap<String, String> criteria) {
         con = this.getConnection();
         String where = "";
         List<String> sets = new LinkedList<>();
@@ -168,7 +168,7 @@ public class SQLConnector {
         return new HashMap<>();
     }
 
-    public HashMap<String, String> getRandomItem(String table) {
+    public Map<String, String> getRandomItem(String table) {
         con = this.getConnection();
         try (PreparedStatement stmt = con.prepareStatement("select * from " + table + " ORDER BY RAND() LIMIT 0,1")) {
             ResultSet rs = stmt.executeQuery();
@@ -188,7 +188,7 @@ public class SQLConnector {
         return new HashMap<>();
     }
 
-    public HashMap<String, String> getQuestionsList() {
+    public TreeMap<Integer, String> getQuestionsList() {
         con = this.getConnection();
         String SQL_STMT = "SELECT chapterNo as chapters, "
                 + "group_concat(questionNo) as questions "
@@ -198,16 +198,17 @@ public class SQLConnector {
             ResultSet rs = stmt.executeQuery();
             ResultSetMetaData md = rs.getMetaData();
             int columns = md.getColumnCount();
-            HashMap form = new HashMap(columns);
+            TreeMap<Integer, String> form = new TreeMap<>();
             while (rs.next()) {
-                form.put(rs.getObject(1).toString(), rs.getObject(2).toString());
+                form.put((Integer) rs.getObject(1), rs.getObject(2).toString());
             }
             con.close();
+            System.out.println(form.toString());
             return form;
         } catch (SQLException e) {
             System.out.println(e.getLocalizedMessage());
         }
-        return new HashMap<>();
+        return new TreeMap<>();
     }
 
 }

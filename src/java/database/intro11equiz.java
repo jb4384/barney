@@ -7,10 +7,7 @@ package database;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
-import static javax.lang.model.SourceVersion.isKeyword;
 
 /**
  *
@@ -20,8 +17,7 @@ import static javax.lang.model.SourceVersion.isKeyword;
 public class intro11equiz implements java.io.Serializable {
 //These variables will exist in all table accessores
 
-    private final String tableName = "intro11equiz";
-    //private final HashMap<String, String> columns;        
+    private final String tableName = "intro11equiz";    
 
 //These variables are specific to this table
     private String chapterNo;
@@ -42,32 +38,31 @@ public class intro11equiz implements java.io.Serializable {
      * Create and build sql table, if it doesn't exist
      */
     public intro11equiz() {
-        setDefaults();
     }
 
     public intro11equiz(String chapterNo, String questionNo) {
-        setDefaults();
         getItem(chapterNo, questionNo);
     }
 
     private void getItem(String chapterNo, String questionNo) {
+        setDefaults();
         HashMap<String, String> result;
         chapterNo = chapterNo.replaceAll("\\D+", "");
         questionNo = questionNo.replaceAll("\\D+", "");
         if (chapterNo.isEmpty() || questionNo.isEmpty()) {
-            result = new SQLConnector().getRandomItem(tableName);
+            result = new HashMap(new SQLConnector().getRandomItem(tableName));
         } else {
             HashMap<String, String> criteria = new HashMap<>();
             criteria.put("chapterNo", chapterNo);
             criteria.put("questionNo", questionNo);
-            result = new SQLConnector().loadItem(tableName, criteria);
-            if (result.isEmpty()){
+            result = new HashMap(new SQLConnector().loadItem(tableName, criteria));
+            if (result.isEmpty()) {
                 criteria.remove("questionNo");
-                result = new SQLConnector().loadItem(tableName, criteria);
-                if (result.isEmpty()){
+                result = new HashMap(new SQLConnector().loadItem(tableName, criteria));
+                if (result.isEmpty()) {
                     error = "Chapter # " + chapterNo;
                 } else {
-                    error = "Question # " + questionNo;                    
+                    error = "Question # " + questionNo;
                 }
                 result.clear();
             }

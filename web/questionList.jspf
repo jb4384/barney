@@ -1,0 +1,42 @@
+<%-- any content can be specified here e.g.: --%>
+<%@ page pageEncoding="UTF-8" %>
+<jsp:useBean id="qst" class="database.intro11equiz" scope="session">
+</jsp:useBean>
+
+<label>Chapter</label>
+<select id="chapterSelect" />
+<label>Question</label>
+<select id="questionSelect" />
+
+<script>
+    var questionList = <%= qst.getQuestionsList() %>;
+    $(function () {
+        /*$("#choiceButton").click(function () {
+            var chapterNo = $('#chapterNo').val();
+            var questionNo = $('#questionNo').val();
+            var info = '';
+            $.post('ajax/functions?method=getQuestionsList&chapterNo=' + chapterNo + '&questionNo=' + questionNo + '&data=' + info, function (data) {
+                console.log(data);
+                questionList = $.parseJSON(data);
+                var l = $('<label />')
+                l.attr('for', 'choiceSelect')
+                        .text('Chapter: ');
+                var s = $('<select />');
+                s.attr('id', 'choiceSelect');
+                $.each(questionList.result, function (i, ele) {
+                    item = ele.chapter;
+                    $('<option />', {value: item, text: item}).appendTo(s);
+                });
+                $('#modalContent').html('').append(l).append(s);
+                $("#myModal").css("display", "block");
+            }).fail(function (error) {
+                alert(error.responseJSON);
+            });
+        });*/
+    });
+    function loadSelect() {
+        console.log(questionList);
+    }
+
+</script>
+
