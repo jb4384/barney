@@ -1,4 +1,5 @@
 var times = 0;
+var max = 3;
 function Ticker(elem) {
     elem.lettering();
     this.done = false;
@@ -34,7 +35,7 @@ Ticker.prototype.reset = function () {
 };
 
 function getRandom() {
-    if (times < 4){
+    if (times < max){
         times++;
     var start = "What_";
     var end = "...Reloading...";
@@ -45,7 +46,7 @@ function getRandom() {
                     "have you done to me", "do you mean you people"];
     var item = items[Math.floor(Math.random()*items.length)];
     var line = start+item+end;
-    if (times == 4) line = "Ok all set...Let's Begin..."
+    if (times == max) line = "Ok all set...Let's Begin..."
     $('#info').text(line.replace(/ /g, "_"));
         setTimeout(function () {
             $words = $('.word');
@@ -93,7 +94,7 @@ Ticker.prototype.loop = function () {
         setTimeout(function () {
             getRandom();
             //self.reset();
-        }, 1450);
+        }, 1000);
     }
 };
 
