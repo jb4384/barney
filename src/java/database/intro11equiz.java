@@ -38,6 +38,7 @@ public class intro11equiz implements java.io.Serializable {
      * Create and build sql table, if it doesn't exist
      */
     public intro11equiz() {
+        setDefaults();
     }
 
     public intro11equiz(String chapterNo, String questionNo) {

@@ -16,14 +16,14 @@ import java.util.*;
 public class SQLConnector {
 
     private Connection con;
-    private final String dbName = "csci5520";
+    /*private final String dbName = "csci5520";
     private final String userName = "jabarney7";
-    private final String password = "password";
+    private final String password = "password";*/
     private final String hostname = "127.0.0.1";
-    /*private final String dbName = "barney";
+    private final String dbName = "barney";
     private final String userName = "barney";
     private final String password = "tiger";
-    private final String hostname = "35.185.94.191";*/
+    //private final String hostname = "35.185.94.191";*/
     private final String port = "3306";
     private String error;
 
@@ -171,7 +171,9 @@ public class SQLConnector {
     public Map<String, String> getRandomItem(String table) {
         con = this.getConnection();
         try (PreparedStatement stmt = con.prepareStatement("select * from " + table + " ORDER BY RAND() LIMIT 0,1")) {
+            System.out.println(stmt.toString());
             ResultSet rs = stmt.executeQuery();
+            System.out.println(rs.toString());
             ResultSetMetaData md = rs.getMetaData();
             int columns = md.getColumnCount();
             HashMap form = new HashMap(columns);

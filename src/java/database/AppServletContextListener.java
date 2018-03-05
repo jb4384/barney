@@ -33,7 +33,7 @@ public class AppServletContextListener implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent arg0) {
         SQLConnector sql = new SQLConnector();
-        //sql.createDatabase();
+        sql.createDatabase();
         items = new ArrayList<>();
         if (!(new intro11equiz().createTable())) {
             System.out.println("Table Created");
